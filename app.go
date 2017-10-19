@@ -1,9 +1,11 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
+	"github.com/julienschmidt/httprouter"
+	"html/template"
+	"net/http"
 )
 
 type User struct {
@@ -13,16 +15,16 @@ type User struct {
 
 func main() {
 	db, _ := gorm.Open("mysql", "root@/test")
+	t, _ := template.ParseGlob("views/*")
 
-	r := gin.Default()
-	r.LoadHTMLGlob("views/*")
-	r.GET("/hello/:name", func(c *gin.Context) {
-		c.HTML(200, "index.html", &struct{ Name string }{c.Param("name")})
+	router := httprouter.New()
+	router.GET("/hello/:name", func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+		t.ExecuteTemplate(w, "index.html", &struct{ Name string }{ps.ByName("name")})
 	})
-	r.GET("/find/:name", func(c *gin.Context) {
+	router.GET("/find/:name", func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		result := User{}
 		db.First(&result)
-		c.HTML(200, "index.html", &struct{ Name string }{result.Name})
+		t.ExecuteTemplate(w, "index.html", &struct{ Name string }{result.Name})
 	})
-	r.Run()
+	http.ListenAndServe(":8080", router)
 }
