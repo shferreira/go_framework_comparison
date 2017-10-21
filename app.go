@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
+	"github.com/kataras/iris"
 )
 
 type User struct {
@@ -14,15 +14,17 @@ type User struct {
 func main() {
 	db, _ := gorm.Open("mysql", "root@/test")
 
-	r := gin.Default()
-	r.LoadHTMLGlob("views/*")
-	r.GET("/hello/:name", func(c *gin.Context) {
-		c.HTML(200, "index.html", &struct{ Name string }{c.Param("name")})
+	app := iris.New()
+	app.RegisterView(iris.HTML("./views", ".html"))
+	app.Get("/hello/{name:string}", func(c iris.Context) {
+		c.ViewData("Name", c.Params().Get("name"))
+		c.View("index.html")
 	})
-	r.GET("/find/:name", func(c *gin.Context) {
+	app.Get("/find/{name:string}", func(c iris.Context) {
 		result := User{}
 		db.First(&result)
-		c.HTML(200, "index.html", &struct{ Name string }{result.Name})
+		c.ViewData("Name", result.Name)
+		c.View("index.html")
 	})
-	r.Run()
+	app.Run(iris.Addr(":8080"))
 }
