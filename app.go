@@ -1,11 +1,11 @@
 package main
 
 import (
+	"github.com/buaazp/fasthttprouter"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
-	"github.com/julienschmidt/httprouter"
+	"github.com/valyala/fasthttp"
 	"html/template"
-	"net/http"
 )
 
 type User struct {
@@ -15,16 +15,18 @@ type User struct {
 
 func main() {
 	db, _ := gorm.Open("mysql", "root@/test")
-	t, _ := template.ParseGlob("views/*")
+	t := template.Must(template.ParseGlob("views/*.html"))
 
-	router := httprouter.New()
-	router.GET("/hello/:name", func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-		t.ExecuteTemplate(w, "index.html", &struct{ Name string }{ps.ByName("name")})
+	router := fasthttprouter.New()
+	router.GET("/hello/:name", func(c *fasthttp.RequestCtx) {
+		c.SetContentType("text/html")
+    t.ExecuteTemplate(c, "index.html", &struct{ Name string }{c.UserValue("name").(string)})
 	})
-	router.GET("/find/:name", func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	router.GET("/find/:name", func(c *fasthttp.RequestCtx) {
 		result := User{}
 		db.First(&result)
-		t.ExecuteTemplate(w, "index.html", &struct{ Name string }{result.Name})
+    c.SetContentType("text/html")
+		t.ExecuteTemplate(c, "index.html", &struct{ Name string }{result.Name})
 	})
-	http.ListenAndServe(":8080", router)
+	fasthttp.ListenAndServe(":8080", router.Handler)
 }
