@@ -1,0 +1,22 @@
+{% interface Page { Body() } %}
+
+{% func PageTemplate(p Page) %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Website</title>
+    <style>
+      body {
+        font-family: Helvetica, Arial, sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    {%= p.Body() %}
+  </body>
+</html>
+{% endfunc %}
+
+{% code type Base struct {} %}
+{% func (p *Base) Body() %}This is a base body{% endfunc %}
