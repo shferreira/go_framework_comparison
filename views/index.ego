@@ -1,0 +1,8 @@
+<%
+package views
+
+func Index(w io.Writer, Name string) error {
+  Layout(w, func() { %>
+  Halo, <%= Name %>
+<% })
+return nil } %>

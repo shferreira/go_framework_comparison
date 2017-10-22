@@ -1,4 +1,8 @@
-{{ define "layout" }}<!DOCTYPE html>
+<%
+package views
+
+func Layout(w io.Writer, yield func()) error {
+%><!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8">
@@ -10,7 +14,7 @@
     </style>
   </head>
   <body>
-    {{ template "content" . }}
+    <% yield() %> :)
   </body>
 </html>
-{{ end }}
+<% return nil } %>
