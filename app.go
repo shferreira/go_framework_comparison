@@ -27,5 +27,6 @@ func main() {
 		t.ExecuteTemplate(c.Response(), "index.html", &struct{ Name string }{result.Name})
 		return nil
 	})
+	e.Static("/", "public")
 	e.Start(":8080")
 }
