@@ -1,26 +1,13 @@
 package main
 
 import (
-	"github.com/labstack/echo"
+	"github.com/kataras/iris"
 )
 
-type User struct {
-	Id   int    `json:"id"`
-	Name string `json:"name"`
-}
-
 func main() {
-	users := map[int]*User{}
-
-	e := echo.New()
-	e.GET("/", func(c echo.Context) error {
-		return c.JSON(200, users)
+	app := iris.New()
+	app.Get("/", func(ctx iris.Context) {
+		ctx.JSON(&struct{ Name string }{ "Test" })
 	})
-	e.PUT("/:id", func(c echo.Context) error {
-		user := &User{}
-		c.Bind(user)
-		users[user.Id] = user
-		return c.JSON(200, user)
-	})
-	e.Start(":8080")
+	app.Run(iris.Addr("localhost:3001"))
 }
