@@ -31,7 +31,7 @@ func main() {
 		if err != nil || !token.Valid() {
 			return c.String(403, "Invalid token")
 		}
-		res, err := http.Get("https://graph.facebook.com/me?fields=email,first_name,last_name,link,about,id,name,picture,location&access_token="+token.AccessToken)
+		res, err := http.Get("https://graph.facebook.com/me?fields=email,first_name,last_name,link,about,id,name,picture,location&access_token=" + token.AccessToken)
 		if err != nil {
 			return c.String(403, "Can't read user data")
 		}
