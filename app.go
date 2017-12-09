@@ -25,11 +25,8 @@ func main() {
 		return c.Redirect(302, facebook.AuthCodeURL(c.Get("csrf").(string)))
 	})
 	e.GET("/auth/:provider/callback", func(c echo.Context) error {
-		if c.QueryParam("state") != c.Get("csrf").(string) {
-			return c.String(403, "CSRF detected")
-		}
 		token, err := facebook.Exchange(oauth2.NoContext, c.QueryParam("code"))
-		if err != nil {
+		if err != nil || !token.Valid() || c.QueryParam("state") != c.Cookie("_csrf") {
 			return c.String(403, "Invalid token")
 		}
 		return c.String(200, token.AccessToken)
