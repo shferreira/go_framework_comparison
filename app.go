@@ -1,7 +1,8 @@
 package main
 
 import (
-	"github.com/labstack/echo"
+	"encoding/json"
+	"net/http"
 )
 
 type User struct {
@@ -10,17 +11,16 @@ type User struct {
 }
 
 func main() {
-	users := map[int]*User{}
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		user := User{1, "Admin"}
 
-	e := echo.New()
-	e.GET("/", func(c echo.Context) error {
-		return c.JSON(200, users)
+		js, err := json.Marshal(user)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(js)
 	})
-	e.PUT("/:id", func(c echo.Context) error {
-		user := &User{}
-		c.Bind(user)
-		users[user.Id] = user
-		return c.JSON(200, user)
-	})
-	e.Start(":8080")
+	http.ListenAndServe(":3000", nil)
 }
